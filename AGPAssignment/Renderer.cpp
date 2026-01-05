@@ -82,7 +82,6 @@ long Renderer::InitD3D()
 	// set the backbuffer as the current render target
 	devcon->OMSetRenderTargets(1, &backBuffer, NULL);
 
-	// define and set viewport struct
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
@@ -161,7 +160,7 @@ long Renderer::InitDepthBuffer()
 	tex2dDesc.ArraySize = 1;
 	tex2dDesc.MipLevels = 1;
 	tex2dDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	tex2dDesc.SampleDesc.Count = scd.SampleDesc.Count; // same sample count as the swap chain
+	tex2dDesc.SampleDesc.Count = scd.SampleDesc.Count; 
 	tex2dDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	tex2dDesc.Usage = D3D11_USAGE_DEFAULT;
 

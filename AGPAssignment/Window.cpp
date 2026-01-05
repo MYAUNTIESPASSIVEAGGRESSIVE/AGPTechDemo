@@ -61,7 +61,7 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			DestroyWindow(hWnd); // destorying window is not closing app
+			DestroyWindow(hWnd);
 			break;
 		}
 	default:
