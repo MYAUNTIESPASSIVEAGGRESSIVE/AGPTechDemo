@@ -1,5 +1,10 @@
 #pragma once
 #include <vector>
+#include "Transform.h"
+#include "Camera.h"
+#include "Lighting.h"
+
+#define MAX_POINT_LIGHTS 8
 
 // renderer + swap chain structs
 struct IDXGISwapChain;
@@ -20,6 +25,8 @@ struct ID3D11BlendState;
 struct ID3D11DepthStencilState;
 
 class Window;
+
+class GameObject;
 
 class Renderer
 {
@@ -51,12 +58,25 @@ private:
 
 #pragma endregion
 
+	// const buffers
+	ID3D11Buffer* cBuffer_PerObject = nullptr; 
+	ID3D11Buffer* cBuffer_PerFrame = nullptr;
+
 	long InitD3D();
 	void InitGraphics();
 	long InitDepthBuffer();
 	void DrawSkyBox();
 
 public:
+
+	Camera& camera;
+
+	GameObject* SkyBoxGO;
+
+	DirectX::XMVECTOR ambientLightColour{ 0.1f, 0.1f, 0.1f };
+	DirectionalLight directionalLight{ {0.9f, 0.8f, 0.75f}, {0.9f, 0.8f, 0.75f} };
+	PointLight pointLights[MAX_POINT_LIGHTS];
+
 	Renderer(Window& inWindow);
 	void Release();
 	void RenderFrame();

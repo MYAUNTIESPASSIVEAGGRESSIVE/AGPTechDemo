@@ -2,9 +2,22 @@
 #include "Debugger.h"
 #include "d3d11.h"
 #include "Window.h"
-//#include <DirectXColors.h>
-//#include <DirectXMath.h>
-//using namespace DirectX;
+#include <DirectXColors.h>
+#include <DirectXMath.h>
+using namespace DirectX;
+
+
+struct CBuffer_PerObject
+{
+	XMMATRIX World;
+	XMMATRIX WVP;
+};
+
+struct CBuffer_PerFrame
+{
+	XMFLOAT3 camPos;
+	float padding;
+};
 
 Renderer::Renderer(Window& inWindow)
 	: window(inWindow)
@@ -20,21 +33,20 @@ Renderer::Renderer(Window& inWindow)
 
 long Renderer::InitD3D()
 {
-	// struct to hold info about swap chain
+	// swapchain desc
 	DXGI_SWAP_CHAIN_DESC scd = {};
 
-	// fill the swap chain description struct
-	scd.BufferCount = 1; // 1 back buffer
-	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // 32-bit color
-	scd.BufferDesc.Width = window.GetWidth(); // set the back buffer width
-	scd.BufferDesc.Height = window.GetHeight(); // set the back buffer height
-	scd.BufferDesc.RefreshRate.Numerator = 60; // 60fps
-	scd.BufferDesc.RefreshRate.Denominator = 1; // 60/1 = 60 fps
-	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; // intended swapchain use
-	scd.OutputWindow = window.GetHandle(); // window to use
-	scd.SampleDesc.Count = 1; // number of smaples for AA
-	scd.Windowed = TRUE; // windowed/full-screen mode
-	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // allow full-screen switching
+	scd.BufferCount = 1; 
+	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
+	scd.BufferDesc.Width = window.GetWidth(); 
+	scd.BufferDesc.Height = window.GetHeight();
+	scd.BufferDesc.RefreshRate.Numerator = 60; 
+	scd.BufferDesc.RefreshRate.Denominator = 1; 
+	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; 
+	scd.OutputWindow = window.GetHandle(); 
+	scd.SampleDesc.Count = 1;
+	scd.Windowed = TRUE;
+	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hr;
 
@@ -71,15 +83,14 @@ long Renderer::InitD3D()
 		return hr;
 	}
 
-	//// init the depth buffer
-	//hr = InitDepthBuffer();
-	//if (FAILED(hr))
-	//{
-	//	LOG("Failed to create depth buffer");
-	//	return hr;
-	//}
+	// init the depth buffer
+	hr = InitDepthBuffer();
+	if (FAILED(hr))
+	{
+		LOG("Failed to create depth buffer");
+		return hr;
+	}
 
-	// set the backbuffer as the current render target
 	devcon->OMSetRenderTargets(1, &backBuffer, NULL);
 
 	D3D11_VIEWPORT viewport = {};
@@ -94,7 +105,7 @@ long Renderer::InitD3D()
 	if (FAILED(hr))
 	{
 		LOG("failed to create a renderer");
-		return hr; // ABORT SHIP!! YARRRRR
+		return hr;
 	}
 
 	return S_OK;
@@ -106,7 +117,7 @@ void Renderer::InitGraphics()
 	ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rsDesc.CullMode = D3D11_CULL_NONE;
 	rsDesc.FillMode = D3D11_FILL_SOLID;
-	//rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+	//rsDesc.FillMode = D3D11_FILL_WIREFRAME; // use for debugging
 
 	// create no culling rasteriser
 	dev->CreateRasterizerState(&rsDesc, &rasterizerCullNone);
@@ -191,7 +202,29 @@ long Renderer::InitDepthBuffer()
 
 void Renderer::DrawSkyBox()
 {
+	//if (SkyBoxGO == nullptr) return;
 
+	// front face culling and disable depth write
+	//devcon->OMSetDepthStencilState(depthWriteOff, 1);
+	//devcon->RSSetState(rasterizerCullFront);
+
+	//CBuffer_PerObject cbuf;
+	//XMMATRIX translation, projection, view;
+	//XMVECTOR camPos = camera.transform.position;
+	//translation = XMMatrixTranslation(XMVectorGetX(camPos), XMVectorGetY(camPos), XMVectorGetZ(camPos));
+	//projection = camera.GetProjectionMatrix(window.GetWidth(), window.GetHeight());
+	//view = camera.GetViewMatrix();
+
+	//cbuf.WVP = translation * view * projection;
+	//devcon->UpdateSubresource(cBuffer_PerObject, 0, 0, &cbuf, 0, 0);
+	//devcon->VSSetConstantBuffers(12, 1, &cBuffer_PerObject);
+
+	//SkyBoxGO->material->UpdateMaterial(SkyBoxGO);
+	//SkyBoxGO->material->Bind();
+	//SkyBoxGO->mesh->Render();
+
+	//devcon->OMSetDepthStencilState(nullptr, 1);
+	//devcon->RSSetState(rasterizerCullFront);
 }
 
 void Renderer::RenderFrame()
@@ -199,7 +232,7 @@ void Renderer::RenderFrame()
 	// clear back buffer with colour
 	FLOAT bg[4] = { 0.2f, 0.3f,0.2f,1.0f };
 	devcon->ClearRenderTargetView(backBuffer, bg);
-	//devcon->ClearDepthStencilView(depthBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	devcon->ClearDepthStencilView(depthBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// flip the back and front buffers
 	swapchain->Present(0, 0);
@@ -211,7 +244,7 @@ void Renderer::Release()
 	if (swapchain) swapchain->Release();
 	if (dev) dev->Release();
 	if (devcon) devcon->Release();
-	//if (cBuffer_PerObject) cBuffer_PerObject->Release();
+	if (cBuffer_PerObject) cBuffer_PerObject->Release();
 	if (depthBuffer) depthBuffer->Release();
 }
 
