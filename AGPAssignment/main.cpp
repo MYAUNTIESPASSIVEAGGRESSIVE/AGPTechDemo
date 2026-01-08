@@ -36,7 +36,7 @@ int WINAPI WinMain(
 	Texture tex_floor{ _renderer, "Assets/FloorGrass.png" };
 	Texture tex_water{ _renderer, "Assets/Water.png" };
 	Texture tex_basemap{ _renderer, "Assets/AW_Texture_Cabin_BaseColour_Map.png" };
-	Texture tex_skybox{ _renderer, "Assets/NightSkyBox.dds", false, Texture::TextureType::Cubemap };
+	Texture tex_skybox{ _renderer, "Assets/SkyBox.dds", false, Texture::TextureType::Cubemap };
 	Texture tex_grass{ _renderer, "Assets/grass.png", true };
 
 #pragma endregion
