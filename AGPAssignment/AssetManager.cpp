@@ -33,11 +33,13 @@ void AssetManager::Load(std::string filePath, std::string ID, bool isDoubleSided
 			{
 				Mesh mesh{ renderer, filePath, true };
 				MeshMap.insert({ ID, mesh });
+				LOG("Mesh added to map");
 			}
 			else
 			{
 				Mesh mesh{ renderer, filePath };
 				MeshMap.insert({ ID, mesh });
+				LOG("Mesh added to map");
 			}
 
 
@@ -50,11 +52,13 @@ void AssetManager::Load(std::string filePath, std::string ID, bool isDoubleSided
 			{
 				Texture texture{ renderer, filePath, true };
 				TextureMap.insert({ ID, texture });
+				LOG("Texture added to map");
 			}
 			else
 			{
 				Texture texture{ renderer, filePath };
 				TextureMap.insert({ ID, texture });
+				LOG("Texture added to map");
 			}
 
 
@@ -67,11 +71,13 @@ void AssetManager::Load(std::string filePath, std::string ID, bool isDoubleSided
 			{
 				Texture texture{ renderer, filePath, true };
 				TextureMap.insert({ ID, texture });
+				LOG("Texture added to map");
 			}
 			else
 			{
 				Texture texture{ renderer, filePath };
 				TextureMap.insert({ ID, texture });
+				LOG("Texture added to map");
 			}
 
 
@@ -84,6 +90,7 @@ void AssetManager::Load(std::string filePath, std::string ID, bool isDoubleSided
 			{
 				Texture texture{ renderer, filePath, true };
 				TextureMap.insert({ ID, texture });
+				LOG("Texture added to map");
 			}
 			else
 			{
@@ -101,11 +108,13 @@ void AssetManager::Load(std::string filePath, std::string ID, bool isDoubleSided
 			{
 				Texture texture{ renderer, filePath, true };
 				TextureMap.insert({ ID, texture });
+				LOG("Texture added to map");
 			}
 			else
 			{
 				Texture texture{ renderer, filePath };
 				TextureMap.insert({ ID, texture });
+				LOG("Texture added to map");
 			}
 
 

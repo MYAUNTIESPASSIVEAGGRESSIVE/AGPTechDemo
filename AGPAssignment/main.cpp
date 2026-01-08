@@ -5,7 +5,6 @@
 #include "Mesh.h"
 #include "GameObject.h"
 #include "Texture.h"
-//#include "AssetManager.h"
 #include "Material.h"
 #include "Material_Lit.h"
 
@@ -17,7 +16,7 @@ int WINAPI WinMain(
 {
 	Window _window{ 800,600, hInstance, nCmdShow };
 	Renderer _renderer{ _window };
-
+	
 #pragma region Meshes
 
 	Mesh mesh_floor{ _renderer, "Assets/landscape_AW_V4_Tris.obj" };
@@ -114,7 +113,7 @@ int WINAPI WinMain(
 
 	go_trees.transform.position = DirectX::XMVectorSet(0, -0.14, 0.3, 1);
 
-	go_loafpoly.transform.position = DirectX::XMVectorSet( 0, -0.3, 2, 1 );
+	go_loafpoly.transform.position = DirectX::XMVectorSet(0 , 2, -3, 1 );
 
 	go_grass.transform.position = DirectX::XMVectorSet(0, -0.3, -2, 1);
 
@@ -122,9 +121,9 @@ int WINAPI WinMain(
 
 #pragma region Lights
 
-	_renderer.pointLights[0] = { DirectX::XMVECTOR{-1, -1, -3}, {0.85f, 0, 0.85f}, 40, true }; // purple
+	_renderer.pointLights[0] = { DirectX::XMVECTOR{-1, -1, -3}, {0.85f, 0, 0.85f}, 50, true }; // purple
 	_renderer.pointLights[1] = { DirectX::XMVECTOR{1, 5, -4}, {0, 0.85f, 0.85f}, 30, true }; // blue
-	_renderer.pointLights[2] = { DirectX::XMVECTOR{-1, 1, -2}, {0.960784376f, 0.870588303f, 0.701960802f }, 50, true }; //yellow
+	_renderer.pointLights[2] = { DirectX::XMVECTOR{30, 0, 0}, {0.960784376f, 0.870588303f, 0.701960802f }, 50, true }; //yellow
 
 #pragma endregion
 
