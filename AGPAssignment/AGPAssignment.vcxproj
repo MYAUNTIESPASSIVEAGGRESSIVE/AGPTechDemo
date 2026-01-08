@@ -125,7 +125,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Debugger.cpp" />
@@ -142,7 +141,6 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Debugger.h" />
