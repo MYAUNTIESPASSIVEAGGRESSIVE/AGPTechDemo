@@ -1,11 +1,20 @@
 #include "AssetManager.h"
+#include "Debugger.h"
+#include "Renderer.h"
 #include "Mesh.h"
-#include "GameObject.h"
 #include "Texture.h"
 
-void AssetManager::Load(Renderer& inRenderer, std::string filePath, std::string ID, bool isDoubleSided = false,
-	bool isTransparent = false)
+AssetManager::AssetManager(Renderer& inRenderer)
+	: renderer(inRenderer)
 {
+	
+}
+
+void AssetManager::Load(std::string filePath, std::string ID, bool isDoubleSided,
+	bool isTransparent)
+{
+	
+			fileExe = FileExtension::UNKNOWN;
 	// extract final .fileext
 	// if/switch texture then contruct texture or if/switch obj then constuct mesh
 	std::string subs;
@@ -13,89 +22,112 @@ void AssetManager::Load(Renderer& inRenderer, std::string filePath, std::string 
 	if (npos != std::string::npos)
 		subs = filePath.substr(npos + 1);
 
-	if (!subs.empty())
+	if (!subs.empty() && fileExe == FileExtension::UNKNOWN)
 		CheckType(subs);
 
 	switch (fileExe)
 	{
 		case(FileExtension::OBJ):
 		{
-			if (isTransparent)
+			if (isDoubleSided)
 			{
-				Texture texture{ inRenderer, filePath, true };
-				TextureMap.insert({ ID, texture });
+				Mesh mesh{ renderer, filePath, true };
+				MeshMap.insert({ ID, mesh });
 			}
 			else
 			{
-				Texture texture{ inRenderer, filePath };
-				TextureMap.insert({ ID, texture });
+				Mesh mesh{ renderer, filePath };
+				MeshMap.insert({ ID, mesh });
 			}
+
+
+			fileExe = FileExtension::UNKNOWN;
 			break;
 		}
 		case(FileExtension::BMP):
 		{
-			if (isDoubleSided)
+			if (isTransparent)
 			{
-				Mesh mesh{ inRenderer, filePath, true };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath, true };
+				TextureMap.insert({ ID, texture });
 			}
 			else
 			{
-				Mesh mesh{ inRenderer, filePath };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath };
+				TextureMap.insert({ ID, texture });
 			}
+
+
+			fileExe = FileExtension::UNKNOWN;
 			break;
 		}
 		case(FileExtension::PNG):
 		{
-			if (isDoubleSided)
+			if (isTransparent)
 			{
-				Mesh mesh{ inRenderer, filePath, true };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath, true };
+				TextureMap.insert({ ID, texture });
 			}
 			else
 			{
-				Mesh mesh{ inRenderer, filePath };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath };
+				TextureMap.insert({ ID, texture });
 			}
+
+
+			fileExe = FileExtension::UNKNOWN;
 			break;
 		}
 		case(FileExtension::JPG):
 		{
-			if (isDoubleSided)
+			if (isTransparent)
 			{
-				Mesh mesh{ inRenderer, filePath, true };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath, true };
+				TextureMap.insert({ ID, texture });
 			}
 			else
 			{
-				Mesh mesh{ inRenderer, filePath };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath };
+				LOG("added" + filePath + "to texturemap");
+				TextureMap.insert({ ID, texture });
 			}
+
+			fileExe = FileExtension::UNKNOWN;
 			break;
 		}
 		case(FileExtension::JPEG):
 		{
-			if (isDoubleSided)
+			if (isTransparent)
 			{
-				Mesh mesh{ inRenderer, filePath, true };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath, true };
+				TextureMap.insert({ ID, texture });
 			}
 			else
 			{
-				Mesh mesh{ inRenderer, filePath };
-				MeshMap.insert({ ID, mesh });
+				Texture texture{ renderer, filePath };
+				TextureMap.insert({ ID, texture });
 			}
+
+
+			fileExe = FileExtension::UNKNOWN;
 			break;
+		}
+		case(FileExtension::NONE):
+		{
+			LOG("Cannot find File Extension!");
+
+			fileExe = FileExtension::UNKNOWN;
+			return;
 		}
 	}
 }
 
 AssetManager::FileExtension AssetManager::CheckType(std::string type)
 {
-	if (type.find(obj)) return FileExtension::OBJ;
-	if (type.find(png)) return FileExtension::PNG;
-	if (type.find(jpg)) return FileExtension::JPG;
-	if (type.find(jpeg)) return FileExtension::JPEG;
-	if (type.find(bmp)) return FileExtension::BMP;
+	if (type == obj) return fileExe = FileExtension::OBJ;
+	if (type == png) return fileExe = FileExtension::PNG;
+	if (type == jpg) return fileExe = FileExtension::JPG;
+	if (type == jpeg) return fileExe = FileExtension::JPEG;
+	if (type == bmp) return fileExe = FileExtension::BMP;
+	else { return fileExe = FileExtension::NONE; };
 }

@@ -2,10 +2,13 @@
 #include "Debugger.h"
 #include "d3d11.h"
 #include "Window.h"
+#include "GameObject.h"
+#include "Mesh.h"
+#include "Texture.h"
+#include "Material.h"
 #include <DirectXColors.h>
 #include <DirectXMath.h>
 using namespace DirectX;
-
 
 struct CBuffer_PerObject
 {
@@ -91,7 +94,7 @@ long Renderer::InitD3D()
 		return hr;
 	}
 
-	devcon->OMSetRenderTargets(1, &backBuffer, NULL);
+	devcon->OMSetRenderTargets(1, &backBuffer, depthBuffer);
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
@@ -113,6 +116,23 @@ long Renderer::InitD3D()
 
 void Renderer::InitGraphics()
 {
+	D3D11_BUFFER_DESC cbd = { 0 };
+	cbd.Usage = D3D11_USAGE_DEFAULT;
+	cbd.ByteWidth = sizeof(CBuffer_PerObject);
+	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	if (FAILED(dev->CreateBuffer(&cbd, NULL, &cBuffer_PerObject)))
+	{
+		LOG("failed to create Cbuffer_perobj");
+	}
+
+	cbd.ByteWidth = sizeof(CBuffer_PerFrame);
+
+	if (FAILED(dev->CreateBuffer(&cbd, NULL, &cBuffer_PerFrame)))
+	{
+		LOG("failed to create Cbuffer_perframe");
+	}
+
 	D3D11_RASTERIZER_DESC rsDesc;
 	ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rsDesc.CullMode = D3D11_CULL_NONE;
@@ -159,6 +179,22 @@ void Renderer::InitGraphics()
 	dev->CreateDepthStencilState(&dsDesc, &depthWriteOff);
 }
 
+void Renderer::RegisterGameObject(GameObject* go)
+{
+	gameObjects.push_back(go);
+	LOG("Registered Game Object:" + go->GetName() + ".");
+}
+
+void Renderer::RemoveGameObject(GameObject* go)
+{
+	auto foundEntity = std::find(gameObjects.begin(), gameObjects.end(), go);
+	if (foundEntity != gameObjects.end())
+	{
+		gameObjects.erase(foundEntity);
+	}
+	// will effect index-based iterating
+}
+
 long Renderer::InitDepthBuffer()
 {
 	HRESULT hr;
@@ -202,37 +238,72 @@ long Renderer::InitDepthBuffer()
 
 void Renderer::DrawSkyBox()
 {
-	//if (SkyBoxGO == nullptr) return;
+	if (SkyBoxGO == nullptr) return;
 
-	// front face culling and disable depth write
-	//devcon->OMSetDepthStencilState(depthWriteOff, 1);
-	//devcon->RSSetState(rasterizerCullFront);
+	//front face culling and disable depth write
+	devcon->OMSetDepthStencilState(depthWriteOff, 1);
+	devcon->RSSetState(rasterizerCullFront);
 
-	//CBuffer_PerObject cbuf;
-	//XMMATRIX translation, projection, view;
-	//XMVECTOR camPos = camera.transform.position;
-	//translation = XMMatrixTranslation(XMVectorGetX(camPos), XMVectorGetY(camPos), XMVectorGetZ(camPos));
-	//projection = camera.GetProjectionMatrix(window.GetWidth(), window.GetHeight());
-	//view = camera.GetViewMatrix();
+	CBuffer_PerObject cbuf;
+	XMMATRIX translation, projection, view;
+	XMVECTOR camPos = camera.transform.position;
+	translation = XMMatrixTranslation(XMVectorGetX(camPos), XMVectorGetY(camPos), XMVectorGetZ(camPos));
+	projection = camera.GetProjectionMatrix(window.GetWidth(), window.GetHeight());
+	view = camera.GetViewMatrix();
 
-	//cbuf.WVP = translation * view * projection;
-	//devcon->UpdateSubresource(cBuffer_PerObject, 0, 0, &cbuf, 0, 0);
-	//devcon->VSSetConstantBuffers(12, 1, &cBuffer_PerObject);
+	cbuf.WVP = translation * view * projection;
+	devcon->UpdateSubresource(cBuffer_PerObject, 0, 0, &cbuf, 0, 0);
+	devcon->VSSetConstantBuffers(12, 1, &cBuffer_PerObject);
 
-	//SkyBoxGO->material->UpdateMaterial(SkyBoxGO);
-	//SkyBoxGO->material->Bind();
-	//SkyBoxGO->mesh->Render();
+	SkyBoxGO->material->UpdateMaterial(SkyBoxGO);
+	SkyBoxGO->material->Bind();
+	SkyBoxGO->mesh->Render();
 
-	//devcon->OMSetDepthStencilState(nullptr, 1);
-	//devcon->RSSetState(rasterizerCullFront);
+	devcon->OMSetDepthStencilState(nullptr, 1);
+	devcon->RSSetState(rasterizerCullFront);
 }
 
 void Renderer::RenderFrame()
 {
 	// clear back buffer with colour
-	FLOAT bg[4] = { 0.2f, 0.3f,0.2f,1.0f };
-	devcon->ClearRenderTargetView(backBuffer, bg);
+	devcon->ClearRenderTargetView(backBuffer, DirectX::Colors::Gray);
 	devcon->ClearDepthStencilView(depthBuffer, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	DrawSkyBox();
+
+	CBuffer_PerFrame cbufferPerFrameData;
+	XMStoreFloat3(&cbufferPerFrameData.camPos, camera.transform.position);
+	devcon->UpdateSubresource(cBuffer_PerFrame, NULL, NULL, &cbufferPerFrameData, NULL, NULL);
+	devcon->VSSetConstantBuffers(11, 1, &cBuffer_PerFrame);
+
+	CBuffer_PerObject cbufferData;
+	XMMATRIX view = camera.GetViewMatrix();
+	XMMATRIX projection = camera.GetProjectionMatrix(window.GetWidth(), window.GetHeight());
+
+	// gathers each game object and sets world transfer/resources and renders
+	for (auto go : gameObjects)
+	{
+
+		XMMATRIX world = go->transform.GetWorldMatrix();
+		cbufferData.World = world;
+		cbufferData.WVP = world * view * projection;
+
+		devcon->UpdateSubresource(cBuffer_PerObject, NULL, NULL, &cbufferData, NULL, NULL);
+		devcon->VSSetConstantBuffers(12, 1, &cBuffer_PerObject);
+
+		devcon->RSSetState(go->mesh->isDoubleSided ?
+			rasterizerCullNone : rasterizerCullBack);
+
+		devcon->OMSetBlendState(go->material->GetTexture()->isTransparent ?
+			blendTransparent : blendOpaque, 0, 0xffffffff);
+
+		devcon->OMSetDepthStencilState(go->material->GetTexture()->isTransparent ?
+			depthWriteOff : nullptr, 1);
+
+		go->material->UpdateMaterial(go);
+		go->material->Bind();
+		go->mesh->Render();
+	}
 
 	// flip the back and front buffers
 	swapchain->Present(0, 0);
