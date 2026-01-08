@@ -30,6 +30,25 @@ class GameObject;
 
 class Renderer
 {
+public:
+
+	Camera camera;
+
+	GameObject* SkyBoxGO;
+	std::vector<GameObject*> gameObjects;
+
+	DirectX::XMVECTOR ambientLightColour{ 0.1f, 0.1f, 0.1f };
+	DirectionalLight directionalLight{ {0.9f, 1.0f, 1.0f}, {0.098039225f, 0.098039225f, 0.439215720f} };
+	PointLight pointLights[MAX_POINT_LIGHTS];
+
+	void RegisterGameObject(GameObject* go);
+	void RemoveGameObject(GameObject* go);
+
+	Renderer(Window& inWindow);
+	void Release();
+	void RenderFrame();
+	ID3D11Device* GetDevice() { return dev; }
+	ID3D11DeviceContext* GetDeviceContext() { return devcon; }
 
 private:
 
@@ -67,20 +86,5 @@ private:
 	long InitDepthBuffer();
 	void DrawSkyBox();
 
-public:
-
-	Camera& camera;
-
-	GameObject* SkyBoxGO;
-
-	DirectX::XMVECTOR ambientLightColour{ 0.1f, 0.1f, 0.1f };
-	DirectionalLight directionalLight{ {0.9f, 0.8f, 0.75f}, {0.9f, 0.8f, 0.75f} };
-	PointLight pointLights[MAX_POINT_LIGHTS];
-
-	Renderer(Window& inWindow);
-	void Release();
-	void RenderFrame();
-	ID3D11Device* GetDevice() { return dev; }
-	ID3D11DeviceContext* GetDeviceContext() { return devcon; }
 };
 

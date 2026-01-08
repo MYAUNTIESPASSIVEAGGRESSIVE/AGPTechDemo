@@ -45,6 +45,9 @@ Window::Window(int width, int height, HINSTANCE instance, int nCmdShow)
 		LOG("failed to create window!");
 		DWORD var = GetLastError();
 	}
+
+	mouse.SetWindow(handle);
+	mouse.SetMode(DirectX::Mouse::MODE_RELATIVE);
 }
 
 LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -103,22 +106,10 @@ LRESULT Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	case WM_MOUSEHOVER:
 		DirectX::Mouse::ProcessMessage(message, wParam, lParam);
 		break;
-	}
-}
-
-void Window::HandleInput(Camera cam)
-{
-	auto kbState = DirectX::Keyboard::Get().GetState();
-	kbTracker.Update(kbState);
-
-	if (kbTracker.pressed.Escape)
-	{
-		PostQuitMessage(0);
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
-	if (kbTracker.lastState.W) cam.transform.Translate({ 0, 0, 0.01f});
-	if (kbTracker.lastState.A) cam.transform.Translate({ -0.01f, 0, 0 });
-	if (kbTracker.lastState.S) cam.transform.Translate({ 0, 0, -0.01f });
-	if (kbTracker.lastState.D) cam.transform.Translate({ 0.01f, 0, 0 });
+	return 0;
 }
 

@@ -27,7 +27,7 @@ public:
 
 	virtual void UpdateMaterial(GameObject* entiry) {} // updating cbuffer
 
-	~Material();
+	/*~Material();*/
 
 protected:
 

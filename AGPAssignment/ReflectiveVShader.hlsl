@@ -1,6 +1,13 @@
 #include "Common.hlsli"
 #include "Lighting.hlsli"
 
+cbuffer LightingData
+{
+    float4 ambientLightCol;
+    DirectionalLight dirLight;
+    PointLight pointLights[MAX_POINT_LIGHTS];
+}
+
 struct VOut
 {
     float4 position : SV_Position;

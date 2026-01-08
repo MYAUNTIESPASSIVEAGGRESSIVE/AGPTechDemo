@@ -48,12 +48,12 @@ void Material::Bind()
 	}
 }
 
-Material::~Material()
-{
-	if (vShader) vShader->Release();
-	if (pShader) pShader->Release();
-	if (vLayout) vLayout->Release();
-}
+//Material::~Material()
+//{
+//	if (vShader) vShader->Release();
+//	if (pShader) pShader->Release();
+//	if (vLayout) vLayout->Release();
+//}
 
 void Material::CreateCBuffer(unsigned int byteWidth, ID3D11Buffer*& targetBuffer)
 {

@@ -19,10 +19,9 @@ cbuffer CbufferPS
 float4 main(PIn input) : SV_TARGET
 {
     float4 sampled = texture0.Sample(sampler0, input.uv);
-    //clip(sampled.a < 0.1f ? -1 : 1); // negates depth and blend states
     float4 reflectedSampled = skybox0.Sample(sampler0, input.uvw);
-    
-    float4 combined = ((input.colour * sampled * 0.6) * (1.0 - reflectiveness)) + (reflectedSampled * reflectiveness); // hard coded mixes -> use constant buffers to be able to control this
+    //clip(sampled.a < 0.1f ? -1 : 1); // negates depth and blend states
+    float4 combined = ((input.colour * sampled * 0.6f) * (1 - reflectiveness)) + (reflectedSampled * reflectiveness); // hard coded mixes -> use constant buffers to be able to control this
     
     return saturate(combined);
 }

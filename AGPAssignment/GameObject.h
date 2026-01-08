@@ -4,7 +4,6 @@
 
 class Mesh;
 class Material;
-//class Texture;
 
 class GameObject
 {
@@ -15,14 +14,19 @@ public:
 	Mesh* mesh;
 
 	Material* material;
-	//Texture* texture;
 
 private:
 	std::string name = "GameObject";
+
+	GameObject* parent;
 
 public:
 	std::string GetName() { return name; }
 
 	GameObject(std::string objectName, Mesh* objectMesh, Material* material);
+
+	void SetParent(GameObject* parent);
+
+	GameObject* GetParent() { return parent; }
 };
 

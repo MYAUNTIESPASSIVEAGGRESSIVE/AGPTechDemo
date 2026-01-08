@@ -15,13 +15,6 @@ struct PointLight
     float2 padding;
 };
 
-cbuffer LightingData
-{
-    float4 ambientLightCol;
-    DirectionalLight dirLight;
-    PointLight pointLights[MAX_POINT_LIGHTS];
-}
-
 float3 CalculateDirectionalContribution(DirectionalLight light, float3 vNormal)
 {
     float diffuseAmount = dot(normalize(light.transposedDirection.xyz), vNormal);
@@ -62,5 +55,5 @@ float3 CalculateReflectionUVW(matrix World, float4 vertexPos, float3 vertexNorm,
     
     float3 eyeDir = normalize(camPos - wpos);
     
-    return reflect(-eyeDir, wnormal); 
+    return 2.0 * dot(eyeDir, wnormal) * wnormal - eyeDir;
 }

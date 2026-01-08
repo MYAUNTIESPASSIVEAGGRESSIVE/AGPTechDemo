@@ -27,7 +27,5 @@ public:
 	DirectX::Keyboard::KeyboardStateTracker kbTracker;
 
 	Window(int width, int height, HINSTANCE instance, int nCmdShow);
-
-	void HandleInput(Camera cam);
 };
 

@@ -10,7 +10,7 @@ public:
 
 	float fov = 65;
 	float nearClippingPlane = 0.1f;
-	float farClippingPlane = 100.0f;
+	float farClippingPlane = 5000.0f;
 
 	DirectX::XMMATRIX GetViewMatrix();
 
