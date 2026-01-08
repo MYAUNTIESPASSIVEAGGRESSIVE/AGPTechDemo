@@ -5,7 +5,7 @@
 #include "Mesh.h"
 #include "GameObject.h"
 #include "Texture.h"
-#include "AssetManager.h"
+//#include "AssetManager.h"
 #include "Material.h"
 #include "Material_Lit.h"
 
@@ -50,11 +50,11 @@ int WINAPI WinMain(
 
 	Material_Lit mat_lit{ "lit", _renderer, "Compiled Shaders/ReflectiveVShader.cso", "Compiled Shaders/ReflectivePShader.cso", &tex_basemap};
 	mat_lit.SetReflectionTexture(&tex_skybox);
-	mat_lit.reflectiveness = 0.2f;
+	mat_lit.reflectiveness = -1.0f;
 
 	Material_Lit mat_litfloor{ "litFloor", _renderer, "Compiled Shaders/ReflectiveVShader.cso", "Compiled Shaders/ReflectivePShader.cso", &tex_floor };
 	mat_lit.SetReflectionTexture(&tex_skybox);
-	mat_litfloor.reflectiveness = 0.2f;
+	mat_litfloor.reflectiveness = -1.0f;
 
 	Material_Lit mat_litWater{ "litWater", _renderer, "Compiled Shaders/ReflectiveVShader.cso", "Compiled Shaders/ReflectivePShader.cso", &tex_water };
 	mat_lit.SetReflectionTexture(&tex_skybox);

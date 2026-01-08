@@ -6,7 +6,7 @@ class Material_Lit :
     public Material
 {
 public:
-    float reflectiveness = 0.0f;
+    float reflectiveness = 0.1f;
 
     Material_Lit(std::string name, Renderer& renderer,
         std::string vShaderFilename, std::string pShaderFilename,
